@@ -1,0 +1,33 @@
+document ::= prolog root
+
+prolog ::= XmlDec | epsilon 
+
+XmlDec ::= '<?xml' VersionInfo optElements '?>'
+
+VersionInfo ::= 'version' '=' versionNumber 
+
+versionNumber ::= ''' VERSION ''' | '"' VERSION '"'
+
+optElements ::= optElement optElements | epsilon
+
+optElement ::= encoding
+
+encoding ::= 'encoding' '=' value
+
+value ::= ''' STRING ''' | '"' STRING '"'
+
+
+root ::= node
+
+node ::= '<' STRING property_list '>' body_element_list '<' '/' STRING '>'
+
+property_list ::= property property_list | epsilon
+
+property ::= VARIABLE '=' value
+
+body_element_list ::= body_element body_element_list | epsilon
+
+body_element ::= STRING | node  
+
+VARIABLE -> [a-zA-Z][[a-zA-Z0-9]*;
+STRING -> [^'"]
