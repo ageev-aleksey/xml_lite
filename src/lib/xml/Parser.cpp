@@ -1,14 +1,14 @@
 #include "xml/Parser.h"
 
-Parser::Parser(Lexer lexer) : lexer(std::move(lexer))
+Parser::Parser(Lexer lexer) : lexer(std::move(lexer)), graph(new XmlGraph)
 {}
 
-Graph<XmlNode*> Parser::parse() {
+Parser::XmlGraphPtr Parser::parse() {
     auto ptr = new XmlNode();
     ptr->name = "~DOCUMENT~";
-    auto root = graph.addNode(ptr);
+    auto root = graph->addNode(ptr);
     parseDocument(root);
-    return graph;
+    return std::move(graph);
 }
 
 /**
@@ -58,8 +58,8 @@ void Parser::parseNode(Graph<XmlNode*>::Iterator& node) {
                 auto *block = new XmlNode;
                 block->name = blockName;
                 block->props = std::move(props);
-                auto blockNode = graph.addNode(block);
-                graph.addLink(node, blockNode);
+                auto blockNode = graph->addNode(block);
+                graph->addLink(node, blockNode);
                 parseBodyElementList(blockNode);
                 token = lexer.next();
                 if(token.type == Token::OPEN_QUOTE_END_BLOCK) {
@@ -119,8 +119,8 @@ void Parser::parseBodyElementList(Graph<XmlNode*>::Iterator& node) {
         XmlText *ptr = new XmlText;
         ptr->name = "~DOCUMENT_TEXT~";
         ptr->text = std::move(token.str);
-        auto textNode = graph.addNode(ptr);
-        graph.addLink(node, textNode);
+        auto textNode = graph->addNode(ptr);
+        graph->addLink(node, textNode);
     } else if(token.type == Token::OPEN_QUOTE_BLOCK) {
         lexer.back();
         parseNode(node);
@@ -132,11 +132,16 @@ void Parser::parseBodyElementList(Graph<XmlNode*>::Iterator& node) {
 }
 
 void Parser::XmlGraphClear(Graph<XmlNode *> *graph) {
+
+}
+
+void Parser::GraphCleaner::operator()(Graph<XmlNode*> *graph) {
     if(graph == nullptr) {
         return;
     }
-   for(auto & el : *graph) {
-       delete el;
-       el = nullptr;
-   }
+    for(auto & el : *graph) {
+        delete el;
+        el = nullptr;
+    }
+    delete graph;
 }

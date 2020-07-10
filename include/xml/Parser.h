@@ -10,10 +10,15 @@
 #include "xml/XmlNode.h"
 
 class Parser {
+    struct GraphCleaner {
+        void operator()(Graph<XmlNode*> *graph);
+    };
 public:
     using XmlGraph = Graph<XmlNode*>;
+    using XmlGraphPtr = std::unique_ptr<XmlGraph, GraphCleaner>;
     explicit Parser(Lexer lexer);
-    XmlGraph parse();
+    XmlGraphPtr parse();
+
 private:
     void parseDocument(Graph<XmlNode*>::Iterator& node);
     void parseProlog(Graph<XmlNode*>::Iterator& node);
@@ -22,11 +27,12 @@ private:
     void parsePropertyList(std::unordered_map<std::string, std::string> &props);
     std::string parseValue();
     void parseBodyElementList(Graph<XmlNode*>::Iterator& node);
-
     static void XmlGraphClear(XmlGraph *graph);
 
+
+
     Lexer lexer;
-    XmlGraph graph;
+    XmlGraphPtr graph;
 };
 
 

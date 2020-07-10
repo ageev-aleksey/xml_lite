@@ -13,6 +13,6 @@ bool ParserTest_parse() {
                       "text"
                       "</node_list>";
     Parser p((Lexer(xml)));
-    Graph<XmlNode*> g = p.parse();
+    Parser::XmlGraphPtr g = p.parse();
     std::cout << "1" << std::endl;
 }

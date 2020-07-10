@@ -24,8 +24,8 @@ public:
         std::shared_ptr<XmlSerializer<T>> serializer = getSerializer<T>();
         if(serializer) {
             Parser parser((Lexer(str)));
-            Parser::XmlGraph g = parser.parse();
-            auto documentNodeItr = g.begin();
+            Parser::XmlGraphPtr g = parser.parse();
+            auto documentNodeItr = g->begin();
             auto rootNodeItr = *documentNodeItr.getChildren().begin();
             return serializer->deserialize(std::make_unique<XmlDeserializeContext>(this, documentNodeItr, rootNodeItr));
         } //TODO исключение при условии, что соответсвующий десериализатор не зарегистрирован
