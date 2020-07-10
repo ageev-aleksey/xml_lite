@@ -19,11 +19,9 @@ value ::= ''' STRING ''' | '"' STRING '"'
 
 root ::= node
 
-node ::= '<' STRING property_list '>' body_element_list '<' '/' STRING '>'
+node ::= '<' STRING property_list '>' body_element_list '</' STRING '>'
 
-property_list ::= property property_list | epsilon
-
-property ::= VARIABLE '=' value
+property_list ::= VARIABLE '=' value property_list | epsilon
 
 body_element_list ::= body_element body_element_list | epsilon
 

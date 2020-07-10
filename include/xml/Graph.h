@@ -74,7 +74,7 @@ public:
     };
 
     Graph() = default;
-    Graph(Graph &g) {
+    Graph(const Graph &g) {
         mNodes = g.mNodes;
         for(auto gIter = g.mNodes.begin(), iter = mNodes.begin();
             gIter != g.mNodes.end(); ++gIter, ++iter) {

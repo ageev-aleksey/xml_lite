@@ -10,6 +10,8 @@
 class Lexer {
 public:
     explicit Lexer(std::string str);
+    Lexer(const Lexer &lexer);
+    Lexer(Lexer &&lexer);
     Token next();
     void back();
 private:

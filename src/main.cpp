@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <xml/Graph.h>
+#include "xml/Parser.h"
 
 class BaseXmlSerializer {
 public:

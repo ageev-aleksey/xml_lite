@@ -4,6 +4,7 @@ bool GraphTest_CopyConstructor();
 bool GraphTest_GetByIndex();
 bool GraphTest_GetByWrongIndex1();
 bool GraphTest_GetByWrongIndex2();
+bool ParserTest_parse();
 
 
 void runTest() {
@@ -14,6 +15,7 @@ void runTest() {
     ok &= GraphTest_GetByIndex();
     ok &= GraphTest_GetByWrongIndex1();
     ok &= GraphTest_GetByWrongIndex2();
+    ok &= ParserTest_parse();
 
 }
 

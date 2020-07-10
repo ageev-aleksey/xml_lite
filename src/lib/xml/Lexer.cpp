@@ -13,8 +13,25 @@ std::string stringTrim(const std::string &str) {
 
 Lexer::Lexer(std::string str)
 : mStr(std::move(str)), mData({mStr.begin(), State::PARSE_BODY, QuoteType::SINGLE})
-
 {}
+
+
+Lexer::Lexer(const Lexer &lexer) : mStr(lexer.mStr) {
+    std::string::const_iterator tmp = lexer.mData.mItr;
+    size_t s = std::distance(lexer.mStr.begin(), tmp);
+    mData = lexer.mData;
+    mData.mItr = mStr.begin() + s;
+}
+
+Lexer::Lexer(Lexer &&lexer)
+{
+    size_t s = std::distance(lexer.mStr.begin(), lexer.mData.mItr);
+    mStr = std::move(lexer.mStr);
+    mData = lexer.mData;
+    lexer.mData = {lexer.mStr.begin(), State::PARSE_BODY, QuoteType::SINGLE};
+    mData.mItr = mStr.begin() + s;
+}
+
 
 Token blockQuoteMatcher(std::string::iterator &itr, const std::string::iterator &end) {
     static const std::regex reBeginProlog("<\\?xml");
@@ -83,7 +100,7 @@ Token Lexer::parseString(){
         reStringEnd = std::regex("<");
         returnTokenType = Token::STRING;
     } else if(mData.mState == State::PARSE_PROPERTY_NAME) {
-        reString = std::regex("[a-zA-Z][a-zA-Z0-9]*");
+        reString = std::regex("[a-zA-Z][a-zA-Z0-9\\-_]*");
         reStringEnd = std::regex("[\\s=>]");
         returnTokenType = Token::VARIABLE;
     } else if(mData.mState == State::PARSE_PROPERTY_VALUE) {
