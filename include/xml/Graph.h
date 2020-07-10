@@ -1,0 +1,123 @@
+#ifndef XML_DEMON_GRAPH_H
+#define XML_DEMON_GRAPH_H
+
+#include <list>
+#include <iterator>
+#include <type_traits>
+
+template<typename T>
+class Graph {
+public:
+    class Iterator;
+
+private:
+    struct Node {
+        Node(const T &data, int index) : data(data), index(index) {}
+        Node(const Node &other) : data(other.data), link(), index(other.index) {}
+        T data;
+        std::list<Iterator> link;
+        int index;
+    };
+public:
+    class Iterator {
+    public:
+        using difference_type = size_t;
+        using value_type = T;
+        using pointer = T*;
+        using reference = T&;
+        using iterator_category = std::bidirectional_iterator_tag;
+        Iterator() = default;
+        Iterator(const Iterator &itr) : mNodeIterator(itr.mNodeIterator) {}
+        Iterator& operator=(const Iterator &other) {
+            mNodeIterator = other.mNodeIterator;
+            return *this;
+        }
+        Iterator& operator++() {
+            ++mNodeIterator;
+            return *this;
+        }
+        Iterator operator++(int) {
+            Iterator tmp(*this);
+            ++mNodeIterator;
+            return tmp;
+        }
+        Iterator& operator--() {
+            --mNodeIterator;
+            return *this;
+        }
+        Iterator& operator--(int) {
+            Iterator tmp(*this);
+            --mNodeIterator;
+            return tmp;
+        }
+        reference operator*() const {
+            return mNodeIterator->data;
+        }
+        pointer operator->() const {
+            return &(mNodeIterator->data);
+        }
+        bool operator==(const Iterator &other) const {
+            return mNodeIterator == other.mNodeIterator;
+        }
+        bool operator!=(const Iterator &other) const {
+            return !(*this == other);
+        }
+        std::list<Iterator> getChildren() {
+            return mNodeIterator->link;
+        }
+
+        friend class Graph;
+    private:
+        explicit Iterator(typename std::list<Node>::iterator node) : mNodeIterator(node)
+        {}
+        typename std::list<Graph::Node>::iterator mNodeIterator;
+    };
+
+    Graph() = default;
+    Graph(Graph &g) {
+        mNodes = g.mNodes;
+        for(auto gIter = g.mNodes.begin(), iter = mNodes.begin();
+            gIter != g.mNodes.end(); ++gIter, ++iter) {
+            for(const auto &gLink : gIter->link) {
+                auto el = get(gLink.mNodeIterator->index);
+                iter->link.push_back(Iterator(el));
+            }
+        }
+    }
+    Iterator addNode(const T &data) {
+        int index = 0;
+        if(!mNodes.empty()) {
+            index = mNodes.back().index + 1;
+        }
+        mNodes.push_back({data, index});
+        return Iterator(--mNodes.end());
+    }
+
+    Iterator addLink(const Iterator &begin, const Iterator &end) {
+        begin.mNodeIterator->link.push_back(end);
+    }
+    Iterator begin() {
+        return Iterator(mNodes.begin());
+    }
+    Iterator end() {
+        return Iterator(mNodes.end());
+    }
+    Iterator get(size_t index) {
+        auto itr = mNodes.begin();
+        int i = 0;
+        while(itr != mNodes.end() && i != index) {
+            ++i;
+            ++itr;
+        }
+        if(i == index) {
+            return Iterator(itr);
+        }
+        return Iterator(mNodes.end());
+    }
+private:
+    std::list<Node> mNodes;
+};
+
+
+
+#endif //XML_DEMON_GRAPH_H

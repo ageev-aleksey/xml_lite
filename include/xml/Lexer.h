@@ -25,11 +25,13 @@ private:
         SINGLE = '\'',
         DOUBLE = '"',
     };
-
+    struct LexerState {
+        std::string::iterator  mItr;
+        State mState;
+        QuoteType mQuoteType;
+    };
     std::string mStr;
-    std::string::iterator  mItr;
-    State mState;
-    QuoteType mQuoteType;
+    LexerState mData;
 };
 
 

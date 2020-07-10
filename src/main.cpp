@@ -1,6 +1,7 @@
 #include <memory>
 #include <unordered_map>
 #include <iostream>
+#include <xml/Graph.h>
 
 class BaseXmlSerializer {
 public:
@@ -90,7 +91,10 @@ public:
     }
 
 };
-
+struct Node {
+    int a;
+    int b;
+};
 
 int main() {
 //    std::unique_ptr<Xml> s = Xml::createInstance();
@@ -102,6 +106,15 @@ int main() {
 //        std::cout << test->j;
 //    }
 //    std::cout << "a";
-    std::string str = "   aba    ", res = stringTrim(str);
-    std::cout << res << std::endl;
+
+    Graph<Node> g;
+    auto i = g.addNode({1, 2});
+    auto j = g.addNode({5, 10});
+    g.addLink(i, j);
+    auto ch = i.getChildren();
+    std::cout << ch.size() << std::endl;
+    for(auto el : ch) {
+        std::cout << el->a << std::endl;
+    }
+    return 0;
 }

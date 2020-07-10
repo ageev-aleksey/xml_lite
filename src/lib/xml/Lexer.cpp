@@ -42,17 +42,17 @@ Token blockQuoteMatcher(std::string::iterator &itr, const std::string::iterator 
 
 Token Lexer::endProlog() {
     auto end = mStr.end();
-    if(std::distance(mItr, end) >= 2) {
-        if(*mItr == '?' && *(++mItr) == '>') {
+    if(std::distance(mData.mItr, end) >= 2) {
+        if(*mData.mItr == '?' && *(++mData.mItr) == '>') {
             Token tok = {"?>", Token::END_PROLOG};
-            ++mItr;
+            ++mData.mItr;
             return tok;
         }
     }
-    auto beginErrorString = mItr;
-    ++mItr;
+    auto beginErrorString = mData.mItr;
+    ++mData.mItr;
     --beginErrorString;
-    return {std::string(beginErrorString, mItr), Token::ERROR};
+    return {std::string(beginErrorString, mData.mItr), Token::ERROR};
 }
 
 //Token Lexer::variableNode() {

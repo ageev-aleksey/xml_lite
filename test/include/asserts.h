@@ -1,5 +1,6 @@
 #include <iostream>
 #include <unordered_set>
+#include <vector>
 
 template<typename T>
 std::ostream& operator<<(std::ostream &stream, const std::unordered_set<T> set) {

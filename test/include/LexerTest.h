@@ -5,7 +5,7 @@
 #ifndef XML_DEMON_LEXERTEST_H
 #define XML_DEMON_LEXERTEST_H
 
-bool LexerTest_rightXml();
+
 
 
 #endif //XML_DEMON_LEXERTEST_H
