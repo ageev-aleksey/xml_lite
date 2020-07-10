@@ -5,7 +5,7 @@ Parser::Parser(Lexer lexer) : lexer(std::move(lexer))
 
 Graph<XmlNode*> Parser::parse() {
     auto ptr = new XmlNode();
-    ptr->name = "DOCUMENT";
+    ptr->name = "~DOCUMENT~";
     auto root = graph.addNode(ptr);
     parseDocument(root);
     return graph;
@@ -15,9 +15,22 @@ Graph<XmlNode*> Parser::parse() {
  *  document ::= prolog root
  */
 void Parser::parseDocument(Graph<XmlNode *>::Iterator& node) {
-  //  parseProlog(node);
+    parseProlog(node);
     parseRoot(node);
 }
+
+void Parser::parseProlog(Graph<XmlNode *>::Iterator &node) {
+    Token token = lexer.next();
+    if(token.type == Token::BEGIN_PROLOG) {
+        std::list<std::pair<std::string, std::string>> props;
+        parsePropertyList(props);
+        token = lexer.next();
+        if(token.type == Token::END_PROLOG) {
+            (*node)->props = std::move(props);
+        }
+    }
+}
+
 
 /**
  * root ::= node

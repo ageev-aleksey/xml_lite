@@ -15,7 +15,7 @@ public:
     Graph<XmlNode*> parse();
 private:
     void parseDocument(Graph<XmlNode*>::Iterator& node);
-    //void parseProlog(Graph<XmlNode*>::Iterator& node);
+    void parseProlog(Graph<XmlNode*>::Iterator& node);
     void parseRoot(Graph<XmlNode*>::Iterator& node);
     void parseNode(Graph<XmlNode*>::Iterator& node);
     void parsePropertyList(std::list<std::pair<std::string, std::string>> &props);

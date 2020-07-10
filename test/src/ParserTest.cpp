@@ -1,7 +1,8 @@
 #include "xml/Parser.h"
 
 bool ParserTest_parse() {
-    std::string xml = "<node_list>\n"
+    std::string xml = "<?xml version='1.0' encoding='utf-8' ?>"
+                      "<node_list>\n"
                       "  <node id='1'>\n"
                       "    Very important string\n"
                       "  </node>\n"
