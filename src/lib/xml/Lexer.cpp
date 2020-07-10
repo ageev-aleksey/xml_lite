@@ -12,7 +12,7 @@ std::string stringTrim(const std::string &str) {
 
 
 Lexer::Lexer(std::string str)
-: mStr(std::move(str)), mItr(mStr.begin()), mQuoteType(QuoteType::SINGLE)
+: mStr(std::move(str)), mData({mStr.begin(), State::PARSE_BODY, QuoteType::SINGLE})
 
 {}
 
@@ -78,88 +78,89 @@ Token Lexer::parseString(){
     std::regex reString;//("[^'\"<>]+");
     std::regex reStringEnd;//("[\\s'\"]");
     Token::Type returnTokenType;
-    if(mState == State::PARSE_BODY) {
+    if(mData.mState == State::PARSE_BODY) {
         reString = std::regex("[^<>]+");
         reStringEnd = std::regex("<");
         returnTokenType = Token::STRING;
-    } else if(mState == State::PARSE_PROPERTY_NAME) {
+    } else if(mData.mState == State::PARSE_PROPERTY_NAME) {
         reString = std::regex("[a-zA-Z][a-zA-Z0-9]*");
         reStringEnd = std::regex("[\\s=>]");
         returnTokenType = Token::VARIABLE;
-    } else if(mState == State::PARSE_PROPERTY_VALUE) {
-        char quote = static_cast<char>(mQuoteType);
+    } else if(mData.mState == State::PARSE_PROPERTY_VALUE) {
+        char quote = static_cast<char>(mData.mQuoteType);
         reString = std::regex(".+");
         reStringEnd = std::regex(std::string(&quote, 1));
-        mState = State::PARSE_PROPERTY_NAME;
+        mData.mState = State::PARSE_PROPERTY_NAME;
         returnTokenType = Token::STRING;
     }
-    auto endVariable = mItr;
+    auto endVariable = mData.mItr;
     auto end = mStr.end();
     std::string::iterator tmp = endVariable;
     while(endVariable != end && !std::regex_match(endVariable, ++tmp, reStringEnd) ) {
         tmp = ++endVariable;
     }
-    if(std::regex_match(mItr, endVariable, reString)) {
-        Token tok = {stringTrim(std::string(mItr, endVariable)), returnTokenType};
-        mItr = endVariable;
+    if(std::regex_match(mData.mItr, endVariable, reString)) {
+        Token tok = {stringTrim(std::string(mData.mItr, endVariable)), returnTokenType};
+        mData.mItr = endVariable;
         return tok;
     }
-    Token tok = {std::string(mItr, endVariable), Token::ERROR};
-    mItr = ++endVariable;
+    Token tok = {std::string(mData.mItr, endVariable), Token::ERROR};
+    mData.mItr = ++endVariable;
     return tok;
 }
 
 
 Token Lexer::next() {
     static const std::regex reSpace("\\s");
+    mBeforeState = mData;
     while(true) {
-        if (mItr == mStr.end()) {
+        if (mData.mItr == mStr.end()) {
             return {"", Token::END};
         }
-        auto tmp = mItr;
-        if (std::regex_match(mItr, ++tmp, reSpace)) {
-            ++mItr;
+        auto tmp = mData.mItr;
+        if (std::regex_match(mData.mItr, ++tmp, reSpace)) {
+            ++mData.mItr;
             continue;
         }
         break;
     }
         Token tok;
-        switch(*mItr) {
+        switch(*mData.mItr) {
             case '<': {
-                tok = blockQuoteMatcher(mItr, mStr.end());
+                tok = blockQuoteMatcher(mData.mItr, mStr.end());
                 if(tok.type != Token::ERROR) {
-                    mState = State::PARSE_PROPERTY_NAME;
+                    mData.mState = State::PARSE_PROPERTY_NAME;
                 }
                 break;
             }
             case '>': {
-                mState = State::PARSE_BODY;
-                ++mItr;
+                mData.mState = State::PARSE_BODY;
+                ++mData.mItr;
                 tok = {">", Token::CLOSE_QUOTE_BLOCK};
                 break;
             }
             case '?': {
                 tok =  endProlog();
                 if(tok.type != Token::ERROR) {
-                    mState = State::PARSE_BODY;
+                    mData.mState = State::PARSE_BODY;
                 }
                 break;
             }
             case '\'': {
-                mQuoteType = QuoteType::SINGLE;
-                ++mItr;
+                mData.mQuoteType = QuoteType::SINGLE;
+                ++mData.mItr;
                 tok =  {"'", Token::QUOTE};
                 break;
             }
             case '"': {
-                mQuoteType = QuoteType::DOUBLE;
-                ++mItr;
+                mData.mQuoteType = QuoteType::DOUBLE;
+                ++mData.mItr;
                 tok =  {"\"", Token::DQUOTE};
                 break;
             }
             case '=': {
-                ++mItr;
-                mState = State::PARSE_PROPERTY_VALUE;
+                ++mData.mItr;
+                mData.mState = State::PARSE_PROPERTY_VALUE;
                 tok =  {"=", Token::EQ};
                 break;
             }
@@ -168,4 +169,9 @@ Token Lexer::next() {
             }
         }
     return  tok;
+}
+
+
+void Lexer::back() {
+    mData = mBeforeState;
 }

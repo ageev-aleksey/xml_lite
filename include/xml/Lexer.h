@@ -32,6 +32,7 @@ private:
     };
     std::string mStr;
     LexerState mData;
+    LexerState mBeforeState;
 };
 
 
