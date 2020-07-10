@@ -1,121 +1,65 @@
-#include <memory>
-#include <unordered_map>
 #include <iostream>
-#include <xml/Graph.h>
-#include "xml/Parser.h"
+#include <xml/Xml.h>
+#include <xml/XmlObject.h>
+#include <xml/XmlDeserializeContext.h>
 
-class BaseXmlSerializer {
-public:
-    virtual ~BaseXmlSerializer() = default;
+struct User{
+    std::string fname;
+    std::string lname;
 };
 
 
-template <typename T> class XmlSerializer;
-
-class Xml {
-public:
-
-    static std::unique_ptr<Xml> createInstance() {
-        return std::unique_ptr<Xml>(new Xml());
-    }
-
-
-    template<typename T>
-    void addSerializer(std::shared_ptr<XmlSerializer<T>> serializer) {
-        serializers.insert({typeid(T).hash_code(), serializer});
-    }
-    template<typename T>
-    std::shared_ptr<XmlSerializer<T>> getSerializer() {
-        size_t hash = typeid(T).hash_code();
-        auto ptr = serializers.find(hash);
-        if(ptr != serializers.end()) {
-            return std::static_pointer_cast<XmlSerializer<T>>(ptr->second);
-        }
-        return nullptr;
-    }
-
-    template<typename T>
-    std::shared_ptr<T> deserialize(const std::string& str) {
-        std::shared_ptr<XmlSerializer<T>> serializer = getSerializer<T>();
-        if(serializer) {
-            serializer->deserialize(str, std::unique_ptr<Context>(new Context(this)));
-        }
-        return nullptr;
-    }
-
-
-    class Context {
-    public:
-
-        template<typename T>
-        std::shared_ptr<T> deserialize(std::string str) {
-            std::shared_ptr<XmlSerializer<T>> ptr =  container->getSerializer<T>();
-            return nullptr;
-        }
-        friend class Xml;
-    private:
-        explicit Context(Xml * xml) : container(xml) {}
-        Xml *container;
-    };
-
-
-
-protected:
-    Xml() = default;
-private:
-    std::unordered_map<size_t, std::shared_ptr<BaseXmlSerializer>> serializers;
-};
-
-template <typename T>
-class XmlSerializer : public BaseXmlSerializer {
-public:
-    virtual std::string serialize(T object) = 0;
-    virtual T deserialize(std::string, std::unique_ptr<Xml::Context> context) = 0;
-    ~XmlSerializer() override = default;
-};
-
-
-
-
-
-class TestXml : public XmlSerializer<int> {
-public:
-    int j;
-    TestXml (int i) {
-        j = i;
-    }
-    std::string serialize(int object) override {
+class UserSerializer : public XmlSerializer<User> {
+    std::string serialize(User user) override {
         return "";
     }
-    int deserialize(std::string str, std::unique_ptr<Xml::Context> context)override{
-        return 0;
+
+    User deserialize(std::unique_ptr<XmlDeserializeContext> context) override {
+        std::optional<XmlObject> userObject = context->get("user");
+        User user;
+        if(userObject) {
+            user.fname = *userObject->get("fname")->getText().begin();
+            user.lname = *userObject->get("lname")->getText().begin();
+        }
+        return user;
+    }
+};
+
+class UserListSerializer : public XmlSerializer<std::list<User>> {
+public:
+    std::string serialize(std::list<User> user) override {
+        return "";
     }
 
+    std::list<User> deserialize(std::unique_ptr<XmlDeserializeContext> context) override {
+        std::optional<XmlObject> usersList = context->get("users");
+        std::list<User> res;
+        if (usersList) {
+            std::list<XmlObject> users = usersList->asList("user");
+            for (auto &el : users) {
+                User user = context->deserialize<User>(el);
+                res.push_back(user);
+            }
+        }
+        return res;
+    }
 };
-struct Node {
-    int a;
-    int b;
-};
+
 
 int main() {
-//    std::unique_ptr<Xml> s = Xml::createInstance();
-//    s->addSerializer<int>(std::make_shared<TestXml>(10));
-//    auto res = s->deserialize<int>(std::string("154"));
-//    std::shared_ptr<XmlSerializer<double>> int_ptr = s->getSerializer<double>();
-//    std::shared_ptr<TestXml> test = std::dynamic_pointer_cast<TestXml>(int_ptr);
-//    if(test) {
-//        std::cout << test->j;
-//    }
-//    std::cout << "a";
-
-    Graph<Node> g;
-    auto i = g.addNode({1, 2});
-    auto j = g.addNode({5, 10});
-    g.addLink(i, j);
-    auto ch = i.getChildren();
-    std::cout << ch.size() << std::endl;
-    for(auto el : ch) {
-        std::cout << el->a << std::endl;
-    }
-    return 0;
+    Xml parser;
+    parser.addSerializer<User>(std::make_shared<UserSerializer>());
+    parser.addSerializer<std::list<User>>(std::make_shared<UserListSerializer>());
+    std::string xmlStr = "<users>"
+                         "  <user>"
+                         "      <fname> Ivan </fname>"
+                         "      <lname> Ivanov </lname>"
+                         "  </user>"
+                         "  <user>"
+                         "      <fname> Petr </fname>"
+                         "      <lname> Petrov </lname>"
+                         "  </user>"
+                         "</users>";
+    auto res = parser.deserialize<std::list<User>>(xmlStr);
+    std::cout << "hellp";
 }

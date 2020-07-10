@@ -11,19 +11,22 @@
 
 class Parser {
 public:
+    using XmlGraph = Graph<XmlNode*>;
     explicit Parser(Lexer lexer);
-    Graph<XmlNode*> parse();
+    XmlGraph parse();
 private:
     void parseDocument(Graph<XmlNode*>::Iterator& node);
     void parseProlog(Graph<XmlNode*>::Iterator& node);
     void parseRoot(Graph<XmlNode*>::Iterator& node);
     void parseNode(Graph<XmlNode*>::Iterator& node);
-    void parsePropertyList(std::list<std::pair<std::string, std::string>> &props);
+    void parsePropertyList(std::unordered_map<std::string, std::string> &props);
     std::string parseValue();
     void parseBodyElementList(Graph<XmlNode*>::Iterator& node);
 
+    static void XmlGraphClear(XmlGraph *graph);
+
     Lexer lexer;
-    Graph<XmlNode*> graph;
+    XmlGraph graph;
 };
 
 

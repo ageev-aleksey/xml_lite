@@ -22,13 +22,16 @@ void Parser::parseDocument(Graph<XmlNode *>::Iterator& node) {
 void Parser::parseProlog(Graph<XmlNode *>::Iterator &node) {
     Token token = lexer.next();
     if(token.type == Token::BEGIN_PROLOG) {
-        std::list<std::pair<std::string, std::string>> props;
+        std::unordered_map<std::string, std::string> props;
         parsePropertyList(props);
         token = lexer.next();
         if(token.type == Token::END_PROLOG) {
             (*node)->props = std::move(props);
         }
+    } else {
+        lexer.back();
     }
+
 }
 
 
@@ -48,7 +51,7 @@ void Parser::parseNode(Graph<XmlNode*>::Iterator& node) {
         token = lexer.next();
         if(token.type == Token::VARIABLE) {
             std::string blockName = std::move(token.str);
-            std::list<std::pair<std::string, std::string>> props;
+            std::unordered_map<std::string, std::string> props;
             parsePropertyList(props);
             token = lexer.next();
             if(token.type == Token::CLOSE_QUOTE_BLOCK) {
@@ -73,7 +76,7 @@ void Parser::parseNode(Graph<XmlNode*>::Iterator& node) {
     }
 }
 
-void Parser::parsePropertyList(std::list<std::pair<std::string, std::string>> &props) {
+void Parser::parsePropertyList(std::unordered_map<std::string, std::string> &props) {
     Token token = lexer.next();
     if(token.type == Token::VARIABLE) {
         std::string variable = std::move(token.str);
@@ -81,7 +84,7 @@ void Parser::parsePropertyList(std::list<std::pair<std::string, std::string>> &p
         if(token.type == Token::EQ) {
             ///token = lexer.next();
             std::string value = parseValue();
-            props.emplace_back(std::move(variable), std::move(value));
+            props.emplace(std::move(variable), std::move(value));
             parsePropertyList(props);
         }
     } else {
@@ -126,4 +129,14 @@ void Parser::parseBodyElementList(Graph<XmlNode*>::Iterator& node) {
         return;
     }
     parseBodyElementList(node);
+}
+
+void Parser::XmlGraphClear(Graph<XmlNode *> *graph) {
+    if(graph == nullptr) {
+        return;
+    }
+   for(auto & el : *graph) {
+       delete el;
+       el = nullptr;
+   }
 }
