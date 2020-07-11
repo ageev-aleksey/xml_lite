@@ -11,30 +11,25 @@
 
 class DirectoryImpl {
 public:
-    DirectoryImpl() {
-        mDirectory = nullptr;
-    }
+    DirectoryImpl(const std::string &path) : mDirectory(NULL), mPath(path)
+    {}
 
-    bool open(const std::string &path) {
-        mDirectory = opendir(path.c_str());
-        if(mDirectory != NULL) {
-            mPath = path;
-            return true;
-        }
-        return false;
+    bool open() {
+        mDirectory = opendir(mPath.c_str());
+        return mDirectory != NULL;
     }
 
     bool isOpen() {
         return mDirectory != NULL;
     }
 
-    std::list<std::string> files() {
+    std::vector<std::string> files() {
         if(!isOpen()) {
             throw std::runtime_error("directory was not opened");
         }
         dirent *entity = NULL;
         struct stat info;
-        std::list<std::string> res;
+        std::vector<std::string> res;
         char pathName[PATH_MAX+1];
         while((entity = readdir(mDirectory)) != NULL) {
             if(strncmp(entity->d_name, ".", PATH_MAX) == 0) continue;
@@ -75,7 +70,7 @@ private:
 
 
 
-Directory::Directory() : pimpl(new DirectoryImpl) {
+Directory::Directory(const std::string &path) : pimpl(new DirectoryImpl(path)) {
 }
 
 Directory::Directory(const Directory &dir) {
@@ -87,12 +82,16 @@ Directory::~Directory() {
         delete  pimpl;
 }
 
-bool Directory::open(std::string path) {
-    return  pimpl->open(path);
+bool Directory::open() {
+    return  pimpl->open();
 }
 
-std::list<std::string> Directory::files() {
+std::vector<std::string> Directory::files() {
     return pimpl->files();
+}
+
+bool Directory::isExists() {
+    return true;
 }
 
 

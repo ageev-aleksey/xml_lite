@@ -5,7 +5,7 @@
 #ifndef XML_DEMON_DIRECTORY_H
 #define XML_DEMON_DIRECTORY_H
 #include <string>
-#include <list>
+#include <vector>
 
 class DirectoryImpl;
 
@@ -17,7 +17,7 @@ public:
     /**
      * \brief Конструктор создающий объект, директорию необходимо открыть методом \see open
      */
-    Directory();
+    explicit Directory(const std::string &path= ".");
     Directory(const Directory &dir);
     ~Directory();
 
@@ -26,12 +26,17 @@ public:
      * @param path путь до дериктории
      * @return
      */
-    bool open(std::string path = ".");
+    bool open();
     /**
      * \brief список файлов в открытой директории
      * @return список файлов
      */
-    std::list<std::string> files();
+    std::vector<std::string> files();
+    /**
+     * \brief Метод проверяет, существует ли директория.
+     * @return Существует ли дериктория
+     */
+    bool isExists();
 
 private:
     DirectoryImpl *pimpl;
