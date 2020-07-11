@@ -7,8 +7,9 @@
 
 
 #include "xml/Parser.h"
-#include <optional>
+#include "xml/util/Optional.h"
 
+#include <experimental/optional>
 class XmlDeserializeContext;
 /**
  * \brief класс описывающий объект в xml формате
@@ -24,7 +25,7 @@ public:
      * @param name
      * @return
      */
-    std::optional<XmlObject> get(std::string name);
+    Optional<XmlObject> get(std::string name);
     /**
      * \brief возвращает список XmlObject по имени.
      *
@@ -62,7 +63,7 @@ public:
      * @param name
      * @return
      */
-    std::optional<std::string> property(const std::string &name);
+    Optional<std::string> property(const std::string &name);
 
     friend class Xml;
     friend class XmlDeserializeContext;

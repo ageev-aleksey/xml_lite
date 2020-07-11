@@ -19,7 +19,7 @@ public:
         }
         //TODO исключение об остуствии зарегистрированного обработчика
     }
-    std::optional<XmlObject> get(const std::string &name);
+    Optional<XmlObject> get(const std::string &name);
 private:
     Parser::XmlGraph::Iterator mDocument;
     Parser::XmlGraph::Iterator mNode;

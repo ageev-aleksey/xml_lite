@@ -5,9 +5,9 @@ XmlDeserializeContext::XmlDeserializeContext(Xml *instance, const Parser::XmlGra
 : mContext(instance), mDocument(document), mNode(node)
 {}
 
-std::optional<XmlObject>  XmlDeserializeContext::get(const std::string &name) {
+Optional<XmlObject>  XmlDeserializeContext::get(const std::string &name) {
     if((*mNode)->name == name) {
         return XmlObject(mNode);
     }
-    return std::nullopt;
+    return {XmlObject(Parser::XmlGraph::Iterator()), false};
 }

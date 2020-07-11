@@ -4,14 +4,14 @@
 XmlObject::XmlObject(const Parser::XmlGraph::Iterator &root) : mItr(root)
 {}
 
-std::optional<XmlObject> XmlObject::get(std::string name) {
+Optional<XmlObject> XmlObject::get(std::string name) {
     auto children = mItr.getChildren();
     for(Parser::XmlGraph::Iterator el : children) {
         if((*el)->name == name) {
             return XmlObject(el);
         }
     }
-    return {};
+    return {XmlObject(Parser::XmlGraph::Iterator()), false};
 }
 
 
@@ -40,11 +40,11 @@ std::list<std::string> XmlObject::getText() {
 }
 
 
-std::optional<std::string> XmlObject::property(const std::string &name) {
+Optional<std::string> XmlObject::property(const std::string &name) {
     auto &props = (*mItr)->props;
     auto itr = props.find(name);
     if(itr != props.end()) {
         return itr->second;
     }
-    return std::nullopt;
+    return {};
 }

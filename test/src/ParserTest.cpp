@@ -30,7 +30,7 @@ class UserSerializer1 : public XmlSerializer<User> {
     }
 
     User deserialize(std::unique_ptr<XmlDeserializeContext> context) override {
-        std::optional<XmlObject> userObject = context->get("user");
+        Optional<XmlObject> userObject = context->get("user");
         User user;
         if(userObject) {
             user.fname = *userObject->get("fname")->getText().begin();
@@ -47,7 +47,7 @@ public:
     }
 
     std::list<User> deserialize(std::unique_ptr<XmlDeserializeContext> context) override {
-        std::optional<XmlObject> usersList = context->get("users");
+        Optional<XmlObject> usersList = context->get("users");
         std::list<User> res;
         if (usersList) {
             std::list<XmlObject> users = usersList->asList("user");
@@ -94,16 +94,16 @@ class UserSerializer2 : public XmlSerializer<User> {
     }
 
     User deserialize(std::unique_ptr<XmlDeserializeContext> context) override {
-        std::optional<XmlObject> userObject = context->get("user");
+        Optional<XmlObject> userObject = context->get("user");
         User user;
         if(userObject) {
             auto fname = userObject->property("fname");
             if(fname) {
-                user.fname = *fname;
+                user.fname = fname.extract();
             }
             auto lname = userObject->property("lname");
             if(lname) {
-                user.lname = *lname;
+                user.lname = lname.extract();
             }
         }
         return user;
