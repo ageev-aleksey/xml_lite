@@ -1,0 +1,14 @@
+[Unit]
+Description=Xml Convert to txt file
+
+[Service]
+Type=simple
+ExecStart=/opt/xml_to_txt_service/app
+ExecStop=/opt/xml_to_txt_service/app stop
+StandardOutput=syslog+console
+StandardError=syslog+console
+
+
+[Install]
+WantedBy=multi-user.target
+

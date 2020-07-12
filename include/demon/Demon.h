@@ -4,7 +4,6 @@
 
 #ifndef XML_DEMON_DEMON_H
 #define XML_DEMON_DEMON_H
-#include "demon/DemonWorker.h"
 #include <memory>
 
 class DemonImpl;
@@ -20,14 +19,19 @@ public:
     protected:
         bool isStop();
     private:
-        bool mIsStop;
+        void setDemonPtr(Demon *ptr);
+        Demon *mPtr;
     };
-    explicit Demon(const std::shared_ptr<Worker> &worker);
-    ~Demon();
-    void start();
+    Demon(const std::shared_ptr<Worker> &worker, const std::string &appName);
     Demon(const Demon&) = delete;
+    ~Demon();
+    static void stop(const std::string &appName);
+    void start();
+    bool isStop();
+
 private:
-    DemonImpl *pimpl;
+    std::shared_ptr<Worker> mWorker;
+    std::string mAppName;
 
 };
 #endif //XML_DEMON_DEMON_H
