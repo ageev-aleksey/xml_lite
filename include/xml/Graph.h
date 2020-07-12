@@ -5,6 +5,11 @@
 #include <iterator>
 #include <type_traits>
 
+
+/**
+ * @brief класс описывающий граф
+ * @tparam T - тип данных хранящийся в узлах графа
+ */
 template<typename T>
 class Graph {
 public:
@@ -19,6 +24,9 @@ private:
         int index;
     };
 public:
+    /**
+     * @brief итератор по узлам графа
+     */
     class Iterator {
     public:
         using difference_type = size_t;
@@ -84,6 +92,11 @@ public:
             }
         }
     }
+    /**
+     * @brief создание нового узла.
+     * @param data - данные, нового узла
+     * @return итератор на созданный узел.
+     */
     Iterator addNode(const T &data) {
         int index = 0;
         if(!mNodes.empty()) {
@@ -92,16 +105,32 @@ public:
         mNodes.push_back({data, index});
         return Iterator(--mNodes.end());
     }
-
-    Iterator addLink(const Iterator &begin, const Iterator &end) {
+    /**
+     * @brief добавление связи между двумя узлами
+     * @param begin - итератор узела, в котором начинается связь.
+     * @param end  - итератор узла, в котором заканчивается связь.
+     */
+    void addLink(const Iterator &begin, const Iterator &end) {
         begin.mNodeIterator->link.push_back(end);
     }
+    /**
+     * @brief Получить итератор на узле, который был первым добавлен в граф.
+     * @return итератор первого узла.
+     */
     Iterator begin() {
         return Iterator(mNodes.begin());
     }
+    /**
+     * Итератор указывающий за последний узел графа.
+     */
     Iterator end() {
         return Iterator(mNodes.end());
     }
+    /**
+     * @brief Получить итератор на узел графа по его индексу. Елси такого узла нет, то тогда возращает \see end.
+     * @param index - индекс узла.
+     * @return итератор узла.
+     */
     Iterator get(size_t index) {
         auto itr = mNodes.begin();
         int i = 0;

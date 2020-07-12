@@ -7,12 +7,25 @@
 #include "xml/Token.h"
 #include <regex>
 
+/**
+ * @brief класс выполняющий разбивку xml текста на токены
+ */
 class Lexer {
 public:
+    /**
+     * @param str - строка в xml формате
+     */
     explicit Lexer(std::string str);
     Lexer(const Lexer &lexer);
     Lexer(Lexer &&lexer);
+    /**
+     * @brief получение следующего токена
+     * @return токен
+     */
     Token next();
+    /**
+     * @brief возрат состояния лексера на один шаг назад. Вернуться на два шага назад невозможно.
+     */
     void back();
 private:
     Token parseString();

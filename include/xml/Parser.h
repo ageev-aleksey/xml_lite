@@ -9,14 +9,24 @@
 #include "xml/Lexer.h"
 #include "xml/XmlNode.h"
 
+/**
+ * Парсер xml документа
+ */
 class Parser {
     struct GraphCleaner {
         void operator()(Graph<XmlNode*> *graph);
     };
 public:
-    using XmlGraph = Graph<XmlNode*>;
-    using XmlGraphPtr = std::unique_ptr<XmlGraph, GraphCleaner>;
+    using XmlGraph = Graph<XmlNode*>; //< Тип описывающий дерево xml документа
+    using XmlGraphPtr = std::unique_ptr<XmlGraph, GraphCleaner>; //< Указатель на дерево xml документа
+    /**
+     * @param lexer - лексер возвращающий поток токенов
+     */
     explicit Parser(Lexer lexer);
+    /**
+     * @brief выполнить разбор xml  докуменат и получить построенно дерево.
+     * @return дерево xml  документа.
+     */
     XmlGraphPtr parse();
 
 private:

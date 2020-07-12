@@ -7,13 +7,18 @@
 #include <string>
 #include <unordered_map>
 
-
+/**
+ * @brief Данный узла дерева xml документа.
+ */
 struct XmlNode {
-    std::string name;
-    std::unordered_map<std::string, std::string> props;
+    std::string name; //< Название xml тега
+    std::unordered_map<std::string, std::string> props; //< значение свойств xml тега
     virtual ~XmlNode() = default;
 };
 
+/**
+ * @brief Текст внутри тела xml тега
+ */
 struct XmlText : public XmlNode {
     std::string text;
     virtual ~XmlText() = default;

@@ -2,3 +2,6 @@
 cmake-*/
 bin/
 build/
+Doxyfile
+doc/html/
+doc/latex/
