@@ -1,4 +1,5 @@
 #include "xml/Parser.h"
+#include "xml/exception/XmlParseError.h"
 
 Parser::Parser(Lexer lexer) : lexer(std::move(lexer)), graph(new XmlGraph)
 {}
@@ -27,6 +28,8 @@ void Parser::parseProlog(Graph<XmlNode *>::Iterator &node) {
         token = lexer.next();
         if(token.type == Token::END_PROLOG) {
             (*node)->props = std::move(props);
+        } else {
+            throw XmlParserError("Expected symbol '%>'; Actual symbol '" + token.str + "';");
         }
     } else {
         lexer.back();
@@ -68,11 +71,23 @@ void Parser::parseNode(Graph<XmlNode*>::Iterator& node) {
                         token = lexer.next();
                         if(token.type == Token::CLOSE_QUOTE_BLOCK) {
                             return;
+                        } else {
+                            throw XmlParserError("Expected symbol '>'; Actual symbol '" + token.str + "';");
                         }
+                    } else {
+                        throw XmlParserError("Expected VARIABLE: '" + blockName + "'; Actual symbol '" + token.str +"';");
                     }
+                } else {
+                    throw XmlParserError("Expected symbol '</'; Actual symbol '" + token.str + "';");
                 }
+            } else {
+                throw XmlParserError("Expected symbol '>'; Actual symbol '" + token.str + "';");
             }
+        } else {
+            throw XmlParserError("Expected symbol type VARIABLE Actual symbol: '" + token.str + "';");
         }
+    } else {
+        throw XmlParserError("Expected symbol '<'; Actual symbol '" + token.str + "';");
     }
 }
 
@@ -86,6 +101,8 @@ void Parser::parsePropertyList(std::unordered_map<std::string, std::string> &pro
             std::string value = parseValue();
             props.emplace(std::move(variable), std::move(value));
             parsePropertyList(props);
+        } else {
+            throw XmlParserError("Expected symbol '='; Actual symbol '" + token.str + "';");
         }
     } else {
         lexer.back();
@@ -103,10 +120,16 @@ std::string Parser::parseValue() {
             token = lexer.next();
             if(token.type == qt) {
                 return value;
+            } else {
+                std::stringstream msg;
+                msg << "Expected symbol " << qt << " Actual symbol '" << token.str << "';";
+                throw XmlParserError(msg.str());
             }
+        } else {
+            throw XmlParserError("Expected symbol type STRING; Actual symbol: '" + token.str + "';");
         }
     }
-    return "ERROR!!";
+    throw XmlParserError("Expected symbol ''' or '\"'; Actual symbol '" + token.str + "';");
 }
 
 /*
@@ -131,9 +154,6 @@ void Parser::parseBodyElementList(Graph<XmlNode*>::Iterator& node) {
     parseBodyElementList(node);
 }
 
-void Parser::XmlGraphClear(Graph<XmlNode *> *graph) {
-
-}
 
 void Parser::GraphCleaner::operator()(Graph<XmlNode*> *graph) {
     if(graph == nullptr) {

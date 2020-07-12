@@ -130,3 +130,58 @@ bool SerializerTest_serializeFromProperty() {
     ok &= assertEq<std::string>("Petrov", ptr->lname, std::string(__FUNCTION__) + "@LNameCheck2");
     return ok;
 }
+
+
+bool SerializerTest_InvalidXmlFormat1() {
+    std::string xmlStr = "<users>"
+                         "  <user fname='Ivan' lname='Ivanov'></user>"
+                         "  <user fname='Petr' lname='Petrov'></usr>"
+                         "</users>";
+    Xml parser;
+    parser.addSerializer<User>(std::make_shared<UserSerializer2>());
+    parser.addSerializer<std::list<User>>(std::make_shared<UserListSerializer>());
+    try {
+        auto res = parser.deserialize<std::list<User>>(xmlStr);
+    } catch (XmlParserError &exp) {
+        std::cout << "Test OK: " << __FUNCTION__ << "\n--" << exp.what() <<std::endl;
+        return true;
+    }
+    std::cout << "Test Fail: " << __FUNCTION__ << "\n-- Expected exception!" << std::endl;
+    return false;
+}
+
+bool SerializerTest_InvalidXmlFormat2() {
+    std::string xmlStr = "<users>"
+                         "  <user fname='Ivan' lname='Ivanov'></user>"
+                         "  <user fname 'Petr' lname='Petrov'></user>"
+                         "</users>";
+    Xml parser;
+    parser.addSerializer<User>(std::make_shared<UserSerializer2>());
+    parser.addSerializer<std::list<User>>(std::make_shared<UserListSerializer>());
+    try {
+        auto res = parser.deserialize<std::list<User>>(xmlStr);
+    } catch (XmlParserError &exp) {
+        std::cout << "Test OK: " << __FUNCTION__ << "\n--" << exp.what() <<std::endl;
+        return true;
+    }
+    std::cout << "Test Fail: " << __FUNCTION__ << "\n-- Expected exception!" << std::endl;
+    return false;
+}
+
+bool SerializerTest_InvalidXmlFormat3() {
+    std::string xmlStr = "<users>"
+                         "  <user fname='Ivan' lname='Ivanov'>"
+                         "  <user fname='Petr' lname='Petrov'></user>"
+                         "</users>";
+    Xml parser;
+    parser.addSerializer<User>(std::make_shared<UserSerializer2>());
+    parser.addSerializer<std::list<User>>(std::make_shared<UserListSerializer>());
+    try {
+        auto res = parser.deserialize<std::list<User>>(xmlStr);
+    } catch (XmlParserError &exp) {
+        std::cout << "Test OK: " << __FUNCTION__ << "\n--" << exp.what() <<std::endl;
+        return true;
+    }
+    std::cout << "Test Fail: " << __FUNCTION__ << "\n-- Expected exception!" << std::endl;
+    return false;
+}

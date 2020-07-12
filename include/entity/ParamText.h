@@ -9,7 +9,7 @@
 
 struct ParamText {
     std::string name;
-    std::string date; //todo chrono maketime
+    std::string date;
     size_t hoursWorked;
     bool carTrue;
 };

@@ -18,7 +18,7 @@ script:
   - export CXX=/usr/bin/g++-6
   - mkdir build
   - cd build
-  - cmake ..
-  - cmake --build . --target install
+  - cmake .. -DBUILD_DOC=OFF
+  - cmake --build . --target install 
   - cd ../bin
   - ./tests

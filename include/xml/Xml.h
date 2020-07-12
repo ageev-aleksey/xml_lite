@@ -46,7 +46,7 @@ public:
             auto documentNodeItr = g->begin();
             auto rootNodeItr = *documentNodeItr.getChildren().begin();
             return serializer->deserialize(std::make_unique<XmlDeserializeContext>(this, documentNodeItr, rootNodeItr));
-        } //TODO исключение при условии, что соответсвующий десериализатор не зарегистрирован
+        }
         else {
             throw XmlParserError(std::string("deserializer for ") + typeid(T).name() + "not found");
         }
@@ -57,14 +57,14 @@ public:
 //        std::shared_ptr<XmlSerializer<T>> serializer = getSerializer<T>();
 //        if(serializer) {
 //           // serializer->deserialize(DeserializeContext(this, itr));
-//        }//TODO исключение при условии, что соответсвующий десериализатор не зарегистрирован
-//        throw std::runtime_error(std::string("deserializer for ") + typeid(T).name() + "not found");
+//        }//
+//        throw XmlParserError(std::string("deserializer for ") + typeid(T).name() + "not found");
 //    }
     friend class XmlDeserializeContext;
 private:
     template<typename T>
     std::shared_ptr<XmlSerializer<T>> getSerializer() {
-        size_t hash = typeid(T).hash_code();
+        static const size_t hash = typeid(T).hash_code();
         auto ptr = serializers.find(hash);
         if(ptr != serializers.end()) {
             return std::static_pointer_cast<XmlSerializer<T>>(ptr->second);

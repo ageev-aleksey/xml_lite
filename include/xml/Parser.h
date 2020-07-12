@@ -37,7 +37,6 @@ private:
     void parsePropertyList(std::unordered_map<std::string, std::string> &props);
     std::string parseValue();
     void parseBodyElementList(Graph<XmlNode*>::Iterator& node);
-    static void XmlGraphClear(XmlGraph *graph);
 
 
 

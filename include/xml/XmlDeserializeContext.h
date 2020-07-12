@@ -26,6 +26,7 @@ public:
 
     /**
      * Десериализация вложенной сущности другим десериализатором.
+     * @throw XmlParserError Если отсутствует сериализатор для типа T
      * @tparam T - класс сущности, в который выоплняется десериализатор.
      * @param obj - описатель сущности.
      * @return десериализованная сущность.
@@ -36,7 +37,7 @@ public:
         if(ptr) {
             return ptr->deserialize(std::make_unique<XmlDeserializeContext>(mContext, mDocument, obj.mItr));
         }
-        //TODO исключение об остуствии зарегистрированного обработчика
+        throw XmlParserError(std::string("deserializer for ") + typeid(T).name() + "not found");
     }
     /**
      * @brief получить описатель сущности по названию тега  xml формата.
